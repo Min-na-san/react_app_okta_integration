@@ -1,18 +1,55 @@
-import { BrowserRouter as Router, Route } from "react-router-dom";
-import Navbar from "./components/layout/Navbar";
+import React, { Component } from "react";
+import { BrowserRouter as Router, Route, withRouter } from "react-router-dom";
+import { OktaAuth, toRelativeUrl } from "@okta/okta-auth-js";
+import { LoginCallback, Security, SecureRoute } from "@okta/okta-react";
 import Home from "./components/pages/Home";
-import Staff from "./components/pages/Staff";
-function App() {
-  return (
-    <Router>
-      <div className="App">
-        <Navbar />
-        <Route pathe="/" exact={true} component={Home} />
-        <Route pathe="/staff" exact={true} component={Staff} />
-        <h1>Hello World</h1>
-      </div>
-    </Router>
-  );
+import Profile from "./components/pages/Profile";
+import { Redirect } from "react-router-dom/cjs/react-router-dom";
+
+const oktaAuth = new OktaAuth({
+  issuer: "https://dev-91326861.okta.com/oauth2/default",
+  clientId: "0oad3ejybtlUbYXm45d7",
+  redirectUri: window.location.origin + "/login/callback",
+});
+
+class App extends Component {
+  constructor(props) {
+    super(props);
+    this.restoreOriginalUri = async (_oktaAuth, originalUri) => {
+      props.history.replace(
+        toRelativeUrl(originalUri || "/", window.location.origin)
+      );
+    };
+  }
+
+  render() {
+    return (
+      <Security
+        oktaAuth={oktaAuth}
+        restoreOriginalUri={this.restoreOriginalUri}
+      >
+        {/* this page will
+        become secure and need to authenticate before loading it */}
+        <SecureRoute path="/" exact={true} component={Home} />
+
+        <Route path="/login/callback" component={LoginCallback} />
+        <SecureRoute path="/profile" component={Profile} />
+        {/* <Redirect from="/login/callback" to="/profile" /> */}
+      </Security>
+    );
+  }
 }
 
-export default App;
+const AppWithRouterAccess = withRouter(App);
+
+class RouterApp extends Component {
+  render() {
+    return (
+      <Router>
+        <AppWithRouterAccess />
+      </Router>
+    );
+  }
+}
+
+export default RouterApp;
