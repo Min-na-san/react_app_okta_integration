@@ -4,7 +4,7 @@ import { OktaAuth, toRelativeUrl } from "@okta/okta-auth-js";
 import { LoginCallback, Security, SecureRoute } from "@okta/okta-react";
 import Home from "./components/pages/Home";
 import Profile from "./components/pages/Profile";
-import { Redirect } from "react-router-dom/cjs/react-router-dom";
+// import { Redirect } from "react-router-dom/cjs/react-router-dom";
 
 const oktaAuth = new OktaAuth({
   issuer: "https://dev-91326861.okta.com/oauth2/default",
@@ -30,11 +30,12 @@ class App extends Component {
       >
         {/* this page will
         become secure and need to authenticate before loading it */}
-        <SecureRoute path="/" exact={true} component={Home} />
+        <Route path="/" exact={true} component={Home} />
 
         <Route path="/login/callback" component={LoginCallback} />
         <SecureRoute path="/profile" component={Profile} />
-        {/* <Redirect from="/login/callback" to="/profile" /> */}
+        <Route path="/staff" exact={true} component={Home} />
+        {/* <Redirect from="/login/callback" to="/profile" exact={true} /> */}
       </Security>
     );
   }
